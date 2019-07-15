@@ -24,6 +24,13 @@ import VideoLibraryIcon from "@material-ui/icons/VideoLibrary";
 import GroupIcon from "@material-ui/icons/Group";
 import GetAppIcon from "@material-ui/icons/GetApp";
 import WebAssetIcon from "@material-ui/icons/WebAsset";
+import GridList from '@material-ui/core/GridList';
+import GridListTile from '@material-ui/core/GridListTile';
+import GridListTileBar from '@material-ui/core/GridListTileBar';
+import ListSubheader from '@material-ui/core/ListSubheader';
+import  Axios from "axios";
+import Card from "@material-ui/core/Card";
+import CardContent from "@material-ui/core/CardContent";
 const useStyles = makeStyles(theme => ({
     appBar:{
         textAlign:'center',
@@ -47,8 +54,8 @@ const useStyles = makeStyles(theme => ({
     },
 }));
 
- const ButtonAppBar=()=> {
-    const classes = useStyles();
+ const MainPage=()=> {
+     var classes = useStyles();
          const [state, setState] = React.useState({
              top: false,
              left: false,
@@ -62,6 +69,7 @@ const useStyles = makeStyles(theme => ({
 
          setState({ ...state, [side]: open });
      };
+
      const sideList = side => (
          <div
              className={classes.list}
@@ -124,16 +132,56 @@ const useStyles = makeStyles(theme => ({
                     </Container>
                 </Toolbar>
             </AppBar>
+            <div id='manlist'>
+            </div>
             <Drawer open={state.left} onClose={toggleDrawer('left', false)}>
                 {sideList('left')}
-
             </Drawer>
         </div>
     );
 }
-ReactDOM.render(< ButtonAppBar/>, document.getElementById('root'));
+ReactDOM.render(<MainPage/>, document.getElementById('root'));
 
 // If you want your app to work offline and load faster, you can change
 // unregister() to register() below. Note this comes with some pitfalls.
 // Learn more about service workers: https://bit.ly/CRA-PWA
 serviceWorker.unregister();
+const listStyles = makeStyles(theme => ({
+    root: {
+        display: 'flex',
+        flexWrap: 'wrap',
+        justifyContent: 'space-around',
+        overflow: 'hidden',
+        backgroundColor: theme.palette.background.paper,
+    },
+    gridList: {
+        flexWrap: 'nowrap',
+        transform: 'translateZ(0)',
+    },
+    title: {
+        color: theme.palette.primary.light,
+    },
+    titleBar: {
+        background:
+            'linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.3) 70%, rgba(0,0,0,0) 100%)',
+    },
+}));
+Axios.get("https://b.i-bara.com/getwd").then(res=>{
+    let tileData =res.data[0];
+   const mainList=
+            <div className={listStyles.root}>
+              <GridList className={listStyles.gridList} cols={tileData.length}>
+                  {tileData.map(tile => (
+                      <GridListTile key={tile.name}>
+                          <Card style={{display:'flex',width:210}}>
+                              <CardContent>
+                                  <img src={tile.coverUrl} alt={tile.name}/>
+                              </CardContent>
+                          </Card>
+                      </GridListTile>
+                  ))}
+                </GridList>
+            </div>
+    ReactDOM.render(mainList, document.getElementById('manlist'));
+    console.log(res.data);
+});
